@@ -7,3 +7,4 @@ Just a assignment
 - add answer
 - random dice
 - calculator
+- current datetime
