@@ -49,7 +49,7 @@ int main(void) {
   canned = load_canned_questions_responses();
   conversation = load_conversations_responses();
   keyword = load_keywords_responses();
-
+  printf("Keywords = %lu\n",sizeof(keyword));
   char input_text[MAX_QUESTION_LENGTH];
   char* response_text;
 
@@ -101,23 +101,55 @@ response load_conversations_responses(void){
   FILE *fp;
   char buffer[BUFFER_LENGTH];
   response res;
-  // TODO: read conversation file and return in response
-  // YOUR CODE HERE
-
+  fp = fopen(KEYWORD_FILE,"rw");
+  for(int i=0; fgets(buffer, BUFFER_LENGTH, fp);i++) {
+      buffer[strcspn(buffer, "\n")] = 0;
+      char* token = strtok(buffer, "\t");
+      if (token == NULL) {
+          printf("wrong format of tsv");
+          break;
+      }
+      res.question[i] = (char*) malloc(strlen(token));
+      strcpy(res.question[i],token);
+      char* split = strtok(NULL,"\t");
+      if (split == NULL) {
+          printf("some row in .tsv file is no value");
+          break;
+      }
+      res.response[i] = (char*) malloc(strlen(split));
+      strcpy(res.response[i],split);
+      res.size++;
+  }
   return res;
 
 }
 
 response load_keywords_responses(void){
-
   FILE *fp;
   char buffer[BUFFER_LENGTH];
   response res;
-
-  // TODO: read keyword file and return in response
-  // YOUR CODE HERE
-
+  res.size = 0;
+  fp = fopen(KEYWORD_FILE,"rw");
+  for(int i=0; fgets(buffer, BUFFER_LENGTH, fp);i++) {
+      buffer[strcspn(buffer, "\n")] = 0;
+      char* token = strtok(buffer, "\t");
+      if (token == NULL) {
+          printf("wrong format of tsv");
+          break;
+      }
+      res.question[i] = (char*) malloc(strlen(token));
+      strcpy(res.question[i],token);
+      char* split = strtok(NULL,"\t");
+      if (split == NULL) {
+          printf("some row in .tsv file is no value");
+          break;
+      }
+      res.response[i] = (char*) malloc(strlen(split));
+      strcpy(res.response[i],split);
+      res.size++;
+  }
   return res;
+
 }
 
 char* canned_response(char* question, response canned, response conversation){
@@ -134,6 +166,11 @@ char* keyword_response(char* question, response keyword){
 
   // TODO: response the question with a keyword found in input text.
   // YOUR CODE HERE
+  for (int i =0; i< keyword.size;i++) {
+    if (strcmp(question, keyword.question[i]) == 0){
+      return keyword.response[i];
+    }
+  }
 
   return NULL;
 }
@@ -186,6 +223,7 @@ char* select_response(char* input_text, response canned, response conversation, 
         selected_response = reflecting(input_text);
         if (selected_response == NULL){
           selected_response = give_up();
+
         }
       }
     }        
