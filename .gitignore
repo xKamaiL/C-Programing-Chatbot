@@ -16,7 +16,7 @@ cmake-build-debug
 # Precompiled Headers
 *.gch
 *.pch
-
+CMakeLists.txt
 # Libraries
 *.lib
 *.a
