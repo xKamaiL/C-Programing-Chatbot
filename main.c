@@ -50,8 +50,8 @@ typedef struct {
 response load_canned_questions_responses(void);
 response load_conversations_responses(void);
 response load_keywords_responses(void);
-char* canned_response(char* input_text, response canned, response conversation);
-char* keyword_response(char*  input_text, response keyword);
+char* canned_response(char* question, response canned, response conversation);
+char* keyword_response(char*  question, response keyword);
 char* yes_no_response(char*  input_text);
 char* reflecting(char*  input_text);
 char* give_up(void);
