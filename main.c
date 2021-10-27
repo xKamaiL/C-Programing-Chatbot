@@ -11,6 +11,7 @@
 
 #define MAX_QUESTIONS 200
 #define MAX_QUESTION_LENGTH 50
+#define MAX_ANSWER 5
 
 #define BUFFER_LENGTH 255
 
@@ -19,6 +20,31 @@ typedef struct {
     char* response[MAX_QUESTIONS];
     int size;
 } response;
+
+typedef struct {
+    char* question[MAX_QUESTIONS];
+    char* response[MAX_QUESTIONS][MAX_ANSWER];
+    int size;
+} multi_response;
+
+//                        _oo0oo_
+//                       o8888888o
+//                       88" . "88
+//                       (| -_- |)
+//                       0\  =  /0
+//                     ___/`---'\___
+//                   .' \|     |// '.
+//                  / \|||  :  |||// \
+//                 / _||||| -:- |||||- \
+//                |   | \\  -  /// |   |
+//                | \_|  ''\---/''  |_/ |
+//                \  .-\__  '-'  ___/-. /
+//              ___'. .'  /--.--\  `. .'___
+//           ."" '<  `.___\_<|>_/___.' >' "".
+//          | | :  `- \`.;`\ _ /`;.`/ - ` : | |
+//          \  \ `_.   \_ __\ /__ _/   .-` /  /
+//      =====`-.____`.___ \_____/___.-`___.-'=====
+//                        `=---='
 
 // function prototypes
 response load_canned_questions_responses(void);
@@ -159,6 +185,7 @@ response load_keywords_responses(void){
         strcpy(res.response[i],split);
         res.size++;
     }
+    printf("[INFO]: load_keywords_responses.size = %d",res.size);
     return res;
 
 }
@@ -205,7 +232,7 @@ char* yes_no_response(char* input_text){
     // loop check
     for (int i =0; i <len ; i++) {
       // check string is start with verb[i] or not ?
-      if (hasPrefix(verbs[i],input_text)) {
+      if (hasPrefix(verbs[i],input_text) && hasSuffix(input_text,"?")) {
         int r = rand()%(sizeof(yes_or_no)/sizeof(char*));
         // random answer yes or no 
         char *answer = yes_or_no[r];
@@ -235,14 +262,14 @@ char* yes_no_response(char* input_text){
         strcat(message,", ");
 
         if (strcmp(toLower(pronous), "i") == 0) {
-          strcat(message, "You ");
+          strcat(message, "You");
         }else if (strcmp(toLower(pronous), "you") == 0) {
-          strcat(message, "I ");
+          strcat(message, "I");
         }else{
           strcat(message, pronous);
         }
 
-       // s
+        // append a word
         switch(i){
           case 0:
             strcat(message, " do");
@@ -254,22 +281,19 @@ char* yes_no_response(char* input_text){
             strcat(message, " have");
           break;
           case 3:
-            strcat(message, " have");
-          break;
-          case 4:
             strcat(message, " will");
           break;
-          case 5:
+          case 4:
             strcat(message, " would");
           break;
-          case 6:
+          case 5:
             strcat(message, " should");
           break;
-          case 7:
+          case 6:
             strcat(message, " can");
           break;
-          case 8:
-            strcat(message, " cloud");
+          case 7:
+            strcat(message, " could");
           break;
         }
 
@@ -295,7 +319,7 @@ char* yes_no_response(char* input_text){
 }
 
 char* reflecting(char* input_text){
-    return NULL;
+    return input_text;
 }
 
 char* give_up(void){
@@ -335,12 +359,11 @@ char* select_response(char* input_text, response canned, response conversation, 
                 selected_response = reflecting(input_text);
                 if (selected_response == NULL){
                     selected_response = give_up();
-
                 }
             }
         }
     }
-
+    
     return selected_response;
 }
 

@@ -1,4 +1,7 @@
-#ifndef C_PROGRAMING_CHATBOT_CURRENT_TIMESTAMP_H
-#define C_PROGRAMING_CHATBOT_CURRENT_TIMESTAMP_H
 
-#endif //C_PROGRAMING_CHATBOT_CURRENT_TIMESTAMP_H
+
+int currentTime();
+
+int currentTime(){
+  time.
+}
