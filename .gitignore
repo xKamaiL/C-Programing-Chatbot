@@ -12,7 +12,7 @@ cmake-build-debug
 *.ilk
 *.map
 *.exp
-
+run
 # Precompiled Headers
 *.gch
 *.pch
