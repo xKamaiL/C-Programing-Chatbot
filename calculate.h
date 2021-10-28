@@ -68,7 +68,7 @@ float parser(char *text){
             // old number state is zero
             if (number_state == 0) {
                 negative_number = true;
-                printf("found negative case\n");
+                // printf("found negative case\n");
                 continue;
             }
 
