@@ -13,7 +13,6 @@
 
 #define MAX_QUESTIONS 200
 #define MAX_QUESTION_LENGTH 50
-#define MAX_ANSWER 5
 
 #define BUFFER_LENGTH 255
 
@@ -25,7 +24,8 @@ typedef struct {
 
 typedef struct {
     char *question[MAX_QUESTIONS];
-    char *response[MAX_QUESTIONS][MAX_ANSWER];
+    char * *response[MAX_QUESTIONS];
+    int response_count;
     int size;
 } multi_response;
 
@@ -53,11 +53,11 @@ response load_canned_questions_responses(void);
 
 response load_conversations_responses(void);
 
-response load_keywords_responses(void);
+multi_response load_keywords_responses(void);
 
 char *canned_response(char *question, response canned, response conversation);
 
-char *keyword_response(char *question, response keyword);
+char *keyword_response(char *question, multi_response keyword);
 
 char *yes_no_response(char *input_text);
 
@@ -65,7 +65,7 @@ char *reflecting(char *input_text);
 
 char *give_up(void);
 
-char *select_response(char *input_text, response canned, response conversation, response keyword);
+char *select_response(char *input_text, response canned, response conversation, multi_response keyword);
 
 char *banner[5] = {
         ".d88b.                          .d88b 8           w   8           w   ",
@@ -79,22 +79,24 @@ char *banner[5] = {
 int main(void) {
 
     response canned,           // canned questions/responses
-    conversation,     // conversation questions/responses
-    keyword;          // keyword questions/responses
+    conversation;     // conversation questions/responses
+    multi_response keyword;          // keyword questions/responses
 
     // load questions/responses files
     canned = load_canned_questions_responses();
     conversation = load_conversations_responses();
     keyword = load_keywords_responses();
     char input_text[MAX_QUESTION_LENGTH];
-    char *response_text;
 
     printf("\n");
     for (int i = 0; i < 5; i++) {
         printf("%s\n", banner[i]);
     }
 
-    //run chatbot
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    printf("Start:");
+    //run chat bot
     while (1) {
         printf("\n>>> ");
         fgets(input_text, MAX_QUESTION_LENGTH, stdin);
@@ -171,10 +173,10 @@ response load_conversations_responses(void) {
 
 }
 
-response load_keywords_responses(void) {
+multi_response load_keywords_responses(void) {
     FILE *fp;
     char buffer[BUFFER_LENGTH];
-    response res;
+    multi_response res;
     res.size = 0;
     fp = fopen(KEYWORD_FILE, "rw");
     for (int i = 0; fgets(buffer, BUFFER_LENGTH, fp); i++) {
@@ -184,16 +186,34 @@ response load_keywords_responses(void) {
             printf("wrong format of tsv");
             break;
         }
+
         res.question[i] = (char *) malloc(strlen(token));
         strcpy(res.question[i], token);
-        char *split = strtok(NULL, "\t");
-        if (split == NULL) {
-            printf("some row in .tsv file is no value");
+        res.size++;
+        token = strtok(NULL, "\t");
+        if (token == NULL) {
+            printf("wrong format of tsv\n");
             break;
         }
-        res.response[i] = (char *) malloc(strlen(split));
-        strcpy(res.response[i], split);
-        res.size++;
+
+//        int variableNumberOfElements = 10;
+
+        res.response[i] = malloc(1 * sizeof(char*));
+//
+//        for (int n = 0; n < variableNumberOfElements; n++){
+//            res.response[i][n] = malloc((201) * sizeof(char));
+//        }
+
+        int j = 0;
+        while (token != NULL) {
+            res.response[i] = realloc(res.response[i],(j+1) * sizeof(char*));
+            res.response[i][j] = malloc((strlen(token)) * sizeof(char));
+            strcpy(res.response[i][j],token);
+            token = strtok(NULL,"\t");
+            j++;
+        }
+        res.response_count = j + 1;
+
     }
     printf("[INFO]: load_keywords_responses.size = %d", res.size);
     return res;
@@ -216,11 +236,14 @@ char *canned_response(char *question, response canned, response conversation) {
     return NULL;
 }
 
-char *keyword_response(char *question, response keyword) {
-
+char *keyword_response(char *question, multi_response keyword) {
+    // set seed
+    srand(time(NULL));
     for (int i = 0; i < keyword.size; i++) {
         if (strcmp(question, keyword.question[i]) == 0) {
-            return keyword.response[i];
+
+            int r = rand() % keyword.response_count;
+            return keyword.response[i][r];
         }
     }
 
@@ -329,7 +352,7 @@ char *yes_no_response(char *input_text) {
 }
 
 char *reflecting(char *input_text) {
-    return input_text;
+    return NULL;
 }
 
 char *give_up(void) {
@@ -354,7 +377,7 @@ char *give_up(void) {
 // 3.keyword
 // 4.reflecting
 // 5.give up
-char *select_response(char *input_text, response canned, response conversation, response keyword) {
+char *select_response(char *input_text, response canned, response conversation, multi_response keyword) {
 
     if (strstr(input_text, "+") != NULL || strstr(input_text, "-") != NULL || strchr(input_text, '/') != NULL ||
         strstr(input_text, "*") != NULL) {
@@ -369,10 +392,8 @@ char *select_response(char *input_text, response canned, response conversation, 
 
     selected_response = canned_response(input_text, canned, conversation);
     if (selected_response == NULL) {
-
         selected_response = yes_no_response(input_text);
         if (selected_response == NULL) {
-
             selected_response = keyword_response(input_text, keyword);
             if (selected_response == NULL) {
                 selected_response = reflecting(input_text);

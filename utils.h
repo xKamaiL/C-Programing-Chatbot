@@ -31,8 +31,10 @@ int hasSuffix(const char *str, const char *suffix)
 
 char* toLower(char* string);
 
-char* toLower(char* string)
+char* toLower(char* s)
 {
+    char* string = malloc(strlen(s));
+    strcpy(string,s);
     int i=0;
     while(*(string+i)!= '\0'){
         if (*(string+i) >= 'A' && *(string+i)<='Z'){
