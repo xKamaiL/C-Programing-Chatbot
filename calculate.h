@@ -17,9 +17,11 @@ float parser(char *text){
     for (int i =0; i < strlen(text);i++) {
         if (text[i] == ' ') continue;
         if(text[i] >= '0' &&  text[i] <= '9') {
+            // add a new number
+            // and shift digit of old number
             number_state = 10.00*number_state + (text[i] -'0') * 1.0;
 
-            // if is the last one
+            // calculate the last one
             if (i == strlen(text) - 1) {
                 switch (operator_state) {
                     case Plus:
@@ -62,6 +64,7 @@ float parser(char *text){
             number_state = 0;
             continue;
         }
+
         if (text[i] == '-') {
             operator_state = Minus;
             // for negative case of number parsing
@@ -88,6 +91,7 @@ float parser(char *text){
             number_state = 0;
             continue;
         }
+
         if (text[i] == '/') {
             operator_state = Division;
             if (result == 0) {
