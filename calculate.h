@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #ifndef C_PROGRAMING_CHATBOT_CALCULATE_H
 #define C_PROGRAMING_CHATBOT_CALCULATE_H
 
@@ -5,14 +7,13 @@
 
 enum operator {Unknown, Plus,Minus,Multiple,Division};
 
-char *doCalculate(char *);
+float parser(char*);
 
+float parser(char *text){
 
-char *doCalculate(char *text) {
-    int digits =0;
+    bool negative_number = false;
     enum operator operator_state = Unknown;
     float result = 0,number_state = 0;
-
     for (int i =0; i < strlen(text);i++) {
         if (text[i] == ' ') continue;
         if(text[i] >= '0' &&  text[i] <= '9') {
@@ -20,7 +21,6 @@ char *doCalculate(char *text) {
 
             // if is the last one
             if (i == strlen(text) - 1) {
-                printf("process last one\n");
                 switch (operator_state) {
                     case Plus:
                         result += number_state;
@@ -32,6 +32,10 @@ char *doCalculate(char *text) {
                         result *= number_state;
                         break;
                     case Division:
+                        // prevent case 0/0
+                        if (result == 0 && number_state == 0) {
+                            return -1;
+                        }
                         result /= number_state;
                         break;
                     default:
@@ -41,17 +45,33 @@ char *doCalculate(char *text) {
             }
             continue;
         }
+        // negative number cases
+        // 10 + -10
+        // -9 * 29
+        // then set a number state to minus
+        // reset negative flag
+        if ((text[i] == '+' || text[i] == '-' || text[i] == '/' || text[i] == '*') && negative_number) {
+            number_state = -number_state;
+            negative_number = false;
+        }
+
 
         if (text[i] == '+') {
             operator_state = Plus;
             result += number_state;
-            printf("do plus: %2.f %2.f\n",result,number_state);
             number_state = 0;
             continue;
         }
         if (text[i] == '-') {
-            printf("do minus\n");
             operator_state = Minus;
+            // for negative case of number parsing
+            // old number state is zero
+            if (number_state == 0) {
+                negative_number = true;
+                printf("found negative case\n");
+                continue;
+            }
+
             result -= number_state;
             number_state = 0;
             continue;
@@ -59,13 +79,11 @@ char *doCalculate(char *text) {
 
         if (text[i] == '*') {
             operator_state = Multiple;
-
             if (result == 0) {
                 result = number_state;
                 number_state = 0;
                 continue;
             }
-
             result *= number_state;
             number_state = 0;
             continue;
@@ -83,7 +101,17 @@ char *doCalculate(char *text) {
         }
     }
 
+    return result;
+}
 
+
+char *doCalculate(char *);
+
+
+char *doCalculate(char *text) {
+    int digits =0;
+
+    float result = parser(text);
 
     float n = result;
     do {
