@@ -228,22 +228,42 @@ char *canned_response(char *question, response canned, response conversation) {
 
     return NULL;
 }
+char *findKeyword(char *, multi_response);
 
-char *keyword_response(char *question, multi_response keyword) {
-    char* tempstr = calloc(strlen(question)+1, sizeof(char));
-    strcpy(tempstr, question);
+char *findKeyword(char *word, multi_response data) {
     // set seed
     srand(time(NULL));
+    // loop all keywords
+    for (int i = 0; i < data.size; i++) {
+        // compare word vs question
+        if (strcmp(word, data.question[i]) == 0) {
+            // random a response in response_count
+            int r = rand() % data.response_count;
+            // return a response with random index
+            return data.response[i][r];
+        }
+    }
+    return NULL;
+}
+
+char *keyword_response(char *question, multi_response keyword) {
+    // create a temp string for strtok will not modify an original string.
+    char* tempstr = calloc(strlen(question)+1, sizeof(char));
+    strcpy(tempstr, question);
+
+
+
+    // split a question into word
 
     char* token = strtok(tempstr," ");
     while (token != NULL) {
-        token = strtok(NULL," ");
-        for (int i = 0; i < keyword.size; i++) {
-            if (strcmp(token, keyword.question[i]) == 0) {
-                int r = rand() % keyword.response_count;
-                return keyword.response[i][r];
-            }
+        // find a keyword
+        char *r = findKeyword(token,keyword);
+        if (r != NULL) {
+            return r;
         }
+        // split next word
+        token = strtok(NULL," ");
     }
 
     return NULL;
@@ -253,31 +273,38 @@ char *yes_no_response(char *input_text) {
     // set seed
     srand(time(NULL));
 
+    // create a yes no array
     char *yes_or_no[] = {
             "Yes",
             "No",
     };
 
+    // verbs for checking
     char *verbs[] = {"Do", "Are", "Have", "Will", "Would", "Should", "Can", "Could"};
 
     size_t len = sizeof(verbs) / sizeof(verbs[0]);
+
     // loop check
     for (int i = 0; i < len; i++) {
-        // check string is start with verb[i] or not ?
+        // check string is start with verb[i] or not
+        // and string end with ?
         if (hasPrefix(verbs[i], input_text) && hasSuffix(input_text, "?")) {
+            // random yes no
             int r = rand() % (sizeof(yes_or_no) / sizeof(char *));
             // random answer yes or no
             char *answer = yes_or_no[r];
 
-            // split word
+            // split a first word
             char *token = strtok(input_text, " ");
 
             // split next 2 word from input_text
             char *pronous = strtok(NULL, " ");
 
+            // if no pro nous just answer only yes or no
             if (pronous == NULL) {
                 return answer;
             }
+            // split a nous
             // if there are no nous just exit
             token = strtok(NULL, " ");
             if (token == NULL) {
@@ -289,10 +316,12 @@ char *yes_no_response(char *input_text) {
             // Allocate new message string
             char *message = (char *) malloc(newSize);
 
+            // copy Yes , No into message
             strcpy(message, answer);
-
+            // add ,
             strcat(message, ", ");
 
+            // compare pronous i and you
             if (strcmp(toLower(pronous), "i") == 0) {
                 strcat(message, "You");
             } else if (strcmp(toLower(pronous), "you") == 0) {
@@ -301,7 +330,7 @@ char *yes_no_response(char *input_text) {
                 strcat(message, pronous);
             }
 
-            // append a word
+            // append a word by i
             switch (i) {
                 case 0:
                     strcat(message, " do");
@@ -331,7 +360,7 @@ char *yes_no_response(char *input_text) {
                     break;
             }
 
-            // answer is not
+            // answer is not then add "n't"
             if (r == 1) {
                 strcat(message, "n't ");
             } else {
@@ -341,7 +370,7 @@ char *yes_no_response(char *input_text) {
 
             // add a nous
             strcat(message, token);
-            // stop
+            // full stop
             strcat(message, ".");
             return message;
         }
@@ -351,6 +380,9 @@ char *yes_no_response(char *input_text) {
 }
 
 char *reflecting(char *input_text) {
+
+
+
     return NULL;
 }
 
