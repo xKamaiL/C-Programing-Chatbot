@@ -1,7 +1,7 @@
-mother	Do you resemble your mother?	What is mother
-father	I love my father.
-food	What are you having for dinner?
-school	I don’t like school.
+mother	Do you resemble your mother?	Where is my mother.
+father	I love my father.	Where is my father.
+food	What are you having for dinner?	Don't say that, I'm hungry now.
+school	I don’t like school.	It's time to go to school.
 breakfast	My favorite breakfast is cereal.
 book	The best book in the world is Communist Manifesto.
 movie	Have you ever watch Star Wars?
@@ -11,11 +11,11 @@ country	How many countries have you ever been to?
 healthy	To be healthy, try to eat, drink, and rest well.
 news	I haven't watch the news in ages.
 train	Do you know? The name of the fastest train in Japan is Nozomi!
-money	ฉันไม่มีตังตลอด
-sport	I hate sports.
+money	ฉันไม่มีตังตลอด	ขอตังหน่อย
+sport	I hate sports.	I like football
 car	I wanna have a Porsche, please buy it for me?
 song	My favorite song is Butter-fly
-game	You seem to be a game nerd.
+game	You seem to be a game nerd.	I like to play valorant.
 ice cream	I recommend Swensens if you want to have some ice cream.
 weekend	I will go shopping this weekend.
 homework	I've never done homework.

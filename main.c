@@ -196,13 +196,6 @@ multi_response load_keywords_responses(void) {
             break;
         }
 
-//        int variableNumberOfElements = 10;
-
-        res.response[i] = malloc(1 * sizeof(char*));
-//
-//        for (int n = 0; n < variableNumberOfElements; n++){
-//            res.response[i][n] = malloc((201) * sizeof(char));
-//        }
 
         int j = 0;
         while (token != NULL) {
@@ -237,13 +230,19 @@ char *canned_response(char *question, response canned, response conversation) {
 }
 
 char *keyword_response(char *question, multi_response keyword) {
+    char* tempstr = calloc(strlen(question)+1, sizeof(char));
+    strcpy(tempstr, question);
     // set seed
     srand(time(NULL));
-    for (int i = 0; i < keyword.size; i++) {
-        if (strcmp(question, keyword.question[i]) == 0) {
 
-            int r = rand() % keyword.response_count;
-            return keyword.response[i][r];
+    char* token = strtok(tempstr," ");
+    while (token != NULL) {
+        token = strtok(NULL," ");
+        for (int i = 0; i < keyword.size; i++) {
+            if (strcmp(token, keyword.question[i]) == 0) {
+                int r = rand() % keyword.response_count;
+                return keyword.response[i][r];
+            }
         }
     }
 

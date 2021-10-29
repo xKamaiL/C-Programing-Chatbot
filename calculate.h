@@ -5,102 +5,103 @@
 
 #endif //C_PROGRAMING_CHATTERBOT_CALCULATE_H
 
-enum operator {Unknown, Plus,Minus,Multiple,Division};
+enum operator {
+    Unknown, Plus, Minus, Multiple, Division
+};
 
-float parser(char*);
+typedef struct {
+    // result of scan
+    float result;
+    // next index
+    int next;
+    // previous scan
+    int prev;
+} scan_result;
 
-float parser(char *text){
+scan_result scanNumber(char *text, int start);
 
-    bool negative_number = false;
+// scanNumber
+// scan หา แต่ตัวเลข
+// return scan_result
+scan_result scanNumber(char *text, int start) {
+    int i = start;
+    float result = 0;
+    while (text[i] >= '0' && text[i] <= '9') {
+        // add a new number
+        // and shift digit of old number
+        result = 10.0 * result + (text[i] - '0') * 1.0;
+        // save how many index
+        i++;
+    }
+    scan_result r;
+    r.result = result;
+    r.prev = start;
+    // not found
+    if (start == i) {
+        r.next = start;
+    } else {
+        // add index of scanned
+        // minus -1
+        // keep parser i++ work
+        r.next = i - 1;
+    }
+    return r;
+}
+
+
+float parser(char *);
+
+float parser(char *text) {
+
     enum operator operator_state = Unknown;
-    float result = 0,number_state = 0;
-    for (int i =0; i < strlen(text);i++) {
-        if (text[i] == ' ') continue;
-        if(text[i] >= '0' &&  text[i] <= '9') {
-            // add a new number
-            // and shift digit of old number
-            number_state = 10.00*number_state + (text[i] -'0') * 1.0;
+    float result = 0;
+    for (int i = 0; i < strlen(text); i++) {
 
-            // calculate the last one
-            if (i == strlen(text) - 1) {
-                switch (operator_state) {
-                    case Plus:
-                        result += number_state;
-                        break;
-                    case Minus:
-                        result -= number_state;
-                        break;
-                    case Multiple:
-                        result *= number_state;
-                        break;
-                    case Division:
-                        // prevent case 0/0
-                        if (result == 0 && number_state == 0) {
-                            return -1;
-                        }
-                        result /= number_state;
-                        break;
-                    default:
-                        // nothing
-                        break;
-                }
+        if (text[i] >= '0' && text[i] <= '9') {
+            scan_result res = scanNumber(text, i);
+
+            // if never operator before
+            // set result to that number
+            if (operator_state == Unknown) {
+                result = res.result;
             }
+
+            // update current i
+            i = res.next;
             continue;
-        }
-        // negative number cases
-        // 10 + -10
-        // -9 * 29
-        // then set a number state to minus
-        // reset negative flag
-        if ((text[i] == '+' || text[i] == '-' || text[i] == '/' || text[i] == '*') && negative_number) {
-            number_state = -number_state;
-            negative_number = false;
         }
 
 
         if (text[i] == '+') {
             operator_state = Plus;
-            result += number_state;
-            number_state = 0;
+            // scan a next number to operate
+            scan_result res = scanNumber(text, i + 1);
+            result += res.result;
+            i = res.next;
             continue;
         }
 
         if (text[i] == '-') {
             operator_state = Minus;
-            // for negative case of number parsing
-            // old number state is zero
-            if (number_state == 0) {
-                negative_number = true;
-                // printf("found negative case\n");
-                continue;
-            }
-
-            result -= number_state;
-            number_state = 0;
+            scan_result res = scanNumber(text, i + 1);
+            result -= res.result;
+            i = res.next;
             continue;
         }
 
         if (text[i] == '*') {
             operator_state = Multiple;
-            if (result == 0) {
-                result = number_state;
-                number_state = 0;
-                continue;
-            }
-            result *= number_state;
-            number_state = 0;
+            scan_result res = scanNumber(text, i + 1);
+            result *= res.result;
+            i = res.next;
             continue;
         }
 
         if (text[i] == '/') {
             operator_state = Division;
-            if (result == 0) {
-                result = number_state;
-                number_state =0;
-                continue;
-            }
-            result /= number_state;
-            number_state =0;
+            scan_result res = scanNumber(text, i + 1);
+            result /= res.result;
+            i = res.next;
             continue;
         }
     }
@@ -113,7 +114,7 @@ char *doCalculate(char *);
 
 
 char *doCalculate(char *text) {
-    int digits =0;
+    int digits = 0;
 
     float result = parser(text);
 
@@ -124,12 +125,12 @@ char *doCalculate(char *text) {
     } while (n != 0);
 
     // allocate number string
-    char * numberInText = malloc(sizeof (char *) *( digits + 2 + 10));
+    char *numberInText = malloc(sizeof(char *) * (digits + 2 + 10));
 
-    snprintf(numberInText,digits + 2,"%.2f", result);
-    char *prefix = malloc(sizeof (char*) * (14));
-    strcpy(prefix,"The answer is ");
-    strcat(prefix,numberInText);
+    snprintf(numberInText, digits + 2, "%.2f", result);
+    char *prefix = malloc(sizeof(char *) * (14));
+    strcpy(prefix, "The answer is ");
+    strcat(prefix, numberInText);
 
     return prefix;
 }
