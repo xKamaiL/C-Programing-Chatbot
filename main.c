@@ -394,11 +394,11 @@ char *reflecting(char *input_text) {
     char * object = malloc(sizeof (char*));
     while (token != NULL) {
         if (j == 1) {
-            verb = realloc(verb, strlen(token));
+            verb = realloc(verb, 1+strlen(token));
             strcpy(verb,token);
         }
         if (j == 3) {
-            object = realloc(object, strlen(token));
+            object = realloc(object, 1+strlen(token));
             strcpy(object,token);
         }
         if (j> 3) break;
@@ -411,12 +411,12 @@ char *reflecting(char *input_text) {
         strcpy(message,"Do you really think ");
 
         strcat(message,"I ");
-        message = realloc(message,20 + strlen(verb));
+        message = realloc(message,21 + strlen(verb));
         strcat(message,verb);
 
         if (j > 3) {
             strcat(message," your ");
-            message = realloc(message,20 + strlen(object));
+            message = realloc(message,21 + strlen(object));
             strcat(message,object);
         }else {
             strcat(message," you");
