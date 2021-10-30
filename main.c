@@ -5,6 +5,7 @@
 #include "utils.h"
 #include "current_timestamp.h"
 #include "calculate.h"
+#include "teach.h"
 
 #define CANNED_QUESTION_FILE "data/canned_question.txt"
 #define CANNED_RESPONSE_FILE "data/canned_response.txt"
@@ -24,7 +25,7 @@ typedef struct {
 
 typedef struct {
     char *question[MAX_QUESTIONS];
-    char * *response[MAX_QUESTIONS];
+    char **response[MAX_QUESTIONS];
     int response_count;
     int size;
 } multi_response;
@@ -199,10 +200,10 @@ multi_response load_keywords_responses(void) {
 
         int j = 0;
         while (token != NULL) {
-            res.response[i] = realloc(res.response[i],(j+1) * sizeof(char*));
+            res.response[i] = realloc(res.response[i], (j + 1) * sizeof(char *));
             res.response[i][j] = malloc((strlen(token)) * sizeof(char));
-            strcpy(res.response[i][j],token);
-            token = strtok(NULL,"\t");
+            strcpy(res.response[i][j], token);
+            token = strtok(NULL, "\t");
             j++;
         }
         res.response_count = j + 1;
@@ -228,6 +229,7 @@ char *canned_response(char *question, response canned, response conversation) {
 
     return NULL;
 }
+
 char *findKeyword(char *, multi_response);
 
 char *findKeyword(char *word, multi_response data) {
@@ -248,22 +250,22 @@ char *findKeyword(char *word, multi_response data) {
 
 char *keyword_response(char *question, multi_response keyword) {
     // create a temp string for strtok will not modify an original string.
-    char* tempstr = calloc(strlen(question)+1, sizeof(char));
+    char *tempstr = calloc(strlen(question) + 1, sizeof(char));
     strcpy(tempstr, question);
 
 
 
     // split a question into word
 
-    char* token = strtok(tempstr," ");
+    char *token = strtok(tempstr, " ");
     while (token != NULL) {
         // find a keyword
-        char *r = findKeyword(token,keyword);
+        char *r = findKeyword(token, keyword);
         if (r != NULL) {
             return r;
         }
         // split next word
-        token = strtok(NULL," ");
+        token = strtok(NULL, " ");
     }
 
     return NULL;
@@ -379,9 +381,51 @@ char *yes_no_response(char *input_text) {
     return NULL;
 }
 
+// reflective ต้องสังเกตจาก pattern ของคำถามครับที่แน่นอน
+// เช่น คำถาม "you kill my dog" จับ pattern ได้ว่า you [verb] my [something].
+// ตอบเป็น pattern เหมือนกันเช่น Do you really think I [verb] your [something] =
+// "Do you really think I kill your dog?".
 char *reflecting(char *input_text) {
+    char *str = calloc(strlen(input_text) + 1, sizeof(char));
+    strcpy(str, input_text);
+    int j = 0;
+    if (!hasPrefix(toLower(str),"you")) return NULL;
 
+    char *token = strtok(str, " ");
+    char * verb = malloc(sizeof (char*));
+    char * object = malloc(sizeof (char*));
 
+    while (token != NULL) {
+        if (j == 1) {
+            verb = realloc(verb, strlen(token));
+            strcpy(verb,token);
+        }
+        if (j == 3) {
+            object = realloc(object, strlen(token));
+            strcpy(object,token);
+        }
+        if (j> 3) break;
+        j++;
+        token = strtok(NULL," ");
+    }
+
+    if (j >= 3) {
+        char * message = malloc(255);
+        strcpy(message,"Do you really think ");
+
+        strcat(message,"I ");
+        strcat(message,verb);
+
+        if (j > 3) {
+            strcat(message," your ");
+            strcat(message,object);
+        }else {
+            strcat(message," you");
+        }
+        strcat(message,"?");
+
+        return message;
+    }
 
     return NULL;
 }
