@@ -94,9 +94,6 @@ int main(void) {
         printf("%s\n", banner[i]);
     }
 
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
-    printf("Start:");
     //run chat bot
     while (1) {
         printf("\n>>> ");
@@ -323,7 +320,7 @@ char *yes_no_response(char *input_text) {
             // add ,
             strcat(message, ", ");
 
-            // compare pronous i and you
+            // compare pronouns i and you
             if (strcmp(toLower(pronous), "i") == 0) {
                 strcat(message, "You");
             } else if (strcmp(toLower(pronous), "you") == 0) {
@@ -386,15 +383,15 @@ char *yes_no_response(char *input_text) {
 // ตอบเป็น pattern เหมือนกันเช่น Do you really think I [verb] your [something] =
 // "Do you really think I kill your dog?".
 char *reflecting(char *input_text) {
-    char *str = calloc(strlen(input_text) + 1, sizeof(char));
+    char *str = calloc(strlen(input_text) + 1,1);
     strcpy(str, input_text);
     int j = 0;
-    if (!hasPrefix(toLower(str),"you")) return NULL;
+
+    if (!hasPrefix("you",toLower(str))) return NULL;
 
     char *token = strtok(str, " ");
     char * verb = malloc(sizeof (char*));
     char * object = malloc(sizeof (char*));
-
     while (token != NULL) {
         if (j == 1) {
             verb = realloc(verb, strlen(token));
@@ -410,14 +407,16 @@ char *reflecting(char *input_text) {
     }
 
     if (j >= 3) {
-        char * message = malloc(255);
+        char * message = malloc(20);
         strcpy(message,"Do you really think ");
 
         strcat(message,"I ");
+        message = realloc(message,20 + strlen(verb));
         strcat(message,verb);
 
         if (j > 3) {
             strcat(message," your ");
+            message = realloc(message,20 + strlen(object));
             strcat(message,object);
         }else {
             strcat(message," you");
