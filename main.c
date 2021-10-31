@@ -25,7 +25,7 @@ typedef struct {
 typedef struct {
     char *question[MAX_QUESTIONS];
     char **response[MAX_QUESTIONS];
-    int response_count;
+    int response_count[MAX_QUESTIONS];
     int size;
 } multi_response;
 
@@ -81,6 +81,7 @@ int main(void) {
         printf("\n>>> ");
         fgets(input_text, MAX_QUESTION_LENGTH, stdin);
         input_text[strcspn(input_text, "\n")] = 0;  // trim newline
+        input_text[strcspn(input_text, "\r")] = 0;
         if (strcmp(input_text, "bye") == 0) {
             printf("Good bye!\n");
             break;
@@ -201,13 +202,14 @@ multi_response load_keywords_responses(void) {
             res.response[i][j] = malloc((strlen(token)) * sizeof(char));
             // copy token ( response number j )
             strcpy(res.response[i][j], token);
+
+            j++;
             // find the next response
             token = strtok(NULL, "\t");
             // increase counter
-            j++;
         }
         // set response_count into j + 1
-        res.response_count = j + 1;
+        res.response_count[i] = j + 1;
 
     }
     // logging a res.size
@@ -252,7 +254,7 @@ char *findKeyword(char *word, multi_response data) {
         // compare word vs question
         if (strcmp(word, data.question[i]) == 0) {
             // random a response in response_count
-            int r = rand() % data.response_count;
+            int r = rand() % data.response_count[i];
             // return a response with random index
             return data.response[i][r];
         }
