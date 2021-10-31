@@ -69,11 +69,11 @@ char *give_up(void);
 char *select_response(char *input_text, response canned, response conversation, multi_response keyword);
 
 char *banner[5] = {
-        ".d88b.                          .d88b 8           w   8           w   ",
-        "YPwww. 8   8 88b. .d88b 8d8b    8P    8d8b. .d88 w8ww 88b. .d8b. w8ww ",
-        "    d8 8b d8 8  8 8.dP' 8P      8b    8P Y8 8  8  8   8  8 8' .8  8   ",
-        "`Y88P' `Y8P8 88P' `Y88P 8       `Y88P 8   8 `Y88  Y8P 88P' `Y8P'  Y8P ",
-        "             8                                                        "
+        "======================================================================",
+        "=                              Welcome to                            =",
+        "=                               Chat bot                             =",
+        "=                           By Pakorn Sangpeth                       =",
+        "======================================================================"
 };
 
 // main function
@@ -407,16 +407,16 @@ char *reflecting(char *input_text) {
     }
 
     if (j >= 3) {
-        char * message = malloc(20);
+        char * message = malloc(30);
         strcpy(message,"Do you really think ");
 
         strcat(message,"I ");
-        message = realloc(message,21 + strlen(verb));
+        message = realloc(message,sizeof (message) + strlen(verb));
         strcat(message,verb);
 
         if (j > 3) {
             strcat(message," your ");
-            message = realloc(message,21 + strlen(object));
+            message = realloc(message,sizeof (message) + strlen(object));
             strcat(message,object);
         }else {
             strcat(message," you");
