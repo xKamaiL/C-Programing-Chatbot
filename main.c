@@ -81,7 +81,7 @@ int main(void) {
         printf("\n>>> ");
         fgets(input_text, MAX_QUESTION_LENGTH, stdin);
         input_text[strcspn(input_text, "\n")] = 0;  // trim newline
-        input_text[strcspn(input_text, "\r")] = 0;
+        input_text[strcspn(input_text, "\r")] = 0; // trim new line
         if (strcmp(input_text, "bye") == 0) {
             printf("Good bye!\n");
             break;
