@@ -5,7 +5,6 @@
 #include "utils.h"
 #include "current_timestamp.h"
 #include "calculate.h"
-#include "teach.h"
 
 #define CANNED_QUESTION_FILE "data/canned_question.txt"
 #define CANNED_RESPONSE_FILE "data/canned_response.txt"
