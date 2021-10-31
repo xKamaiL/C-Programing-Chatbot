@@ -203,10 +203,10 @@ multi_response load_keywords_responses(void) {
             // copy token ( response number j )
             strcpy(res.response[i][j], token);
 
-            j++;
             // find the next response
             token = strtok(NULL, "\t");
             // increase counter
+            j++;
         }
         // set response_count into j + 1
         res.response_count[i] = j + 1;
