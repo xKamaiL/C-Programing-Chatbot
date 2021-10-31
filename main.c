@@ -102,6 +102,7 @@ response load_canned_questions_responses(void) {
 
     for (int i = 0; fgets(buffer, BUFFER_LENGTH, fp); i++) {
         buffer[strcspn(buffer, "\n")] = 0;  // trim newline
+        buffer[strcspn(buffer, "\r")] = 0;
         res.question[i] = (char *) malloc(strlen(buffer));
         strcpy(res.question[i], buffer);
         res.size++;
@@ -112,6 +113,7 @@ response load_canned_questions_responses(void) {
 
     for (int i = 0; fgets(buffer, BUFFER_LENGTH, fp); i++) {
         buffer[strcspn(buffer, "\n")] = 0;
+        buffer[strcspn(buffer, "\r")] = 0;
         res.response[i] = (char *) malloc(strlen(buffer));
         strcpy(res.response[i], buffer);
     }
@@ -132,6 +134,7 @@ response load_conversations_responses(void) {
     for (int i = 0; fgets(buffer, BUFFER_LENGTH, fp); i++) {
 
         buffer[strcspn(buffer, "\n")] = 0;
+        buffer[strcspn(buffer, "\r")] = 0;
 
         if ((i) % 2 == 0) {
             output.question[output.size] = (char *) malloc(strlen(buffer));
@@ -209,7 +212,7 @@ multi_response load_keywords_responses(void) {
             j++;
         }
         // set response_count into j + 1
-        res.response_count[i] = j + 1;
+        res.response_count[i] = j;
 
     }
     // logging a res.size
@@ -253,6 +256,7 @@ char *findKeyword(char *word, multi_response data) {
     for (int i = 0; i < data.size; i++) {
         // compare word vs question
         if (strcmp(word, data.question[i]) == 0) {
+//            printf("count = %d\n",data.response_count[i]);
             // random a response in response_count
             int r = rand() % data.response_count[i];
             // return a response with random index
