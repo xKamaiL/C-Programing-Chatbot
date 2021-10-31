@@ -24,35 +24,28 @@ char *isDateTimeQuestion(char *);
 
 // if message contains time , date , today, month , year
 // bot will answer from system time.
+// every contains condition we convert msg to lowercase
 char *isDateTimeQuestion(char *msg) {
 
+    // allocate response text string pointer
     char *text = (char *) malloc(200);
 
     // get a current time
     time_t t = time(NULL);
     // use a struct from tm.
-
-    //   int tm_sec;			/* Seconds.	[0-60] (1 leap second) */
-    //  int tm_min;			/* Minutes.	[0-59] */
-    //  int tm_hour;			/* Hours.	[0-23] */
-    //  int tm_mday;			/* Day.		[1-31] */
-    //  int tm_mon;			/* Month.	[0-11] */
-    //  int tm_year;			/* Year	- 1900.  */
-    //  int tm_wday;			/* Day of week.	[0-6] */
-    //  int tm_yday;			/* Days in year.[0-365]	*/
-    //  int tm_isdst;			/* DST.		[-1/0/1]*/
     struct tm tm = *localtime(&t);
 
     // message contains time
     if (strstr(toLower(msg), "time") != NULL){
         // HH:mm
-        snprintf( text, 50, "It is %d:%d.", tm.tm_hour,tm.tm_sec );
+        snprintf( text, 50, "It is %d:%d.", tm.tm_hour,tm.tm_min );
         return text;
     }
 
     // message contain date
     if (strstr(toLower(msg), "date") != NULL) {
         // convert string format YYYY/MM/DD
+        // tm.tm_year must add with 1900 refer to document
         snprintf( text, 50, "%d/%d/%d", tm.tm_year+1900, tm.tm_mon, tm.tm_mday );
         return text;
     }
@@ -82,7 +75,8 @@ char *isDateTimeQuestion(char *msg) {
         return text;
     }
 
-    // free a text memory, no used.
+    // free a text memory, un used.
     free(text);
+    // no contain message exit this function
     return NULL;
 }

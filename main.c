@@ -116,7 +116,7 @@ response load_canned_questions_responses(void) {
     }
 
     fclose(fp);
-
+    printf("[INFO] load_canned_questions_responses.size = %d\n",res.size);
     return res;
 }
 
@@ -265,8 +265,6 @@ char *keyword_response(char *question, multi_response keyword) {
     char *tempstr = calloc(strlen(question) + 1, sizeof(char));
     strcpy(tempstr, question);
 
-
-
     // split a question into word by space
     char *token = strtok(tempstr, " ");
     while (token != NULL) {
@@ -393,49 +391,72 @@ char *yes_no_response(char *input_text) {
     return NULL;
 }
 
-// reflective ต้องสังเกตจาก pattern ของคำถามครับที่แน่นอน
-// เช่น คำถาม "you kill my dog" จับ pattern ได้ว่า you [verb] my [something].
-// ตอบเป็น pattern เหมือนกันเช่น Do you really think I [verb] your [something] =
-// "Do you really think I kill your dog?".
 char *reflecting(char *input_text) {
+    // create a temp string for strtok
     char *str = calloc(strlen(input_text) + 1,1);
+    // copy original input_text
     strcpy(str, input_text);
-    int j = 0;
 
+    // check string is start with "you"
+    // if not exit this function
     if (!hasPrefix("you",toLower(str))) return NULL;
 
+    // split the string by space into word
     char *token = strtok(str, " ");
+
+    // malloc verb and object
     char * verb = malloc(sizeof (char*));
     char * object = malloc(sizeof (char*));
+
+    // initial counter = 0
+    int j = 0;
+    // loop token ( split text until text is NULL )
     while (token != NULL) {
+        // j == 1 is verb
         if (j == 1) {
+            // re allocate verb string by length of token ( verb string )
             verb = realloc(verb, 1+strlen(token));
+            // copy to verb string
             strcpy(verb,token);
         }
+        // j == 3 is object
         if (j == 3) {
+            // re allocate object string by length of token ( object string )
             object = realloc(object, 1+strlen(token));
+            // copy to object string
             strcpy(object,token);
         }
+        // exit if too much word
         if (j> 3) break;
+        // increase counter
         j++;
+        // split next word
         token = strtok(NULL," ");
     }
 
+    // have verb or verb and subject
     if (j >= 3) {
+        // allocate for new string
         char * message = malloc(30);
+        // pattern
         strcpy(message,"Do you really think ");
 
         strcat(message,"I ");
+        // re allocate for verb string
         message = realloc(message,sizeof (message) + strlen(verb));
+        // append message with verb
         strcat(message,verb);
 
+        // has object
         if (j > 3) {
             strcat(message," your ");
             message = realloc(message,sizeof (message) + strlen(object));
             strcat(message,object);
         }else {
+            // no object
             strcat(message," you");
         }
+        // end up with "?"
         strcat(message,"?");
 
         return message;
@@ -445,9 +466,10 @@ char *reflecting(char *input_text) {
 }
 
 char *give_up(void) {
-
+    // set seed for random
     srand(time(NULL));
 
+    // pattern of give up response
     char *give_up_response[] = {
             "I heard you!",
             "So, you are talking to me.",
@@ -455,7 +477,7 @@ char *give_up(void) {
             "Very interesting conversation.",
             "Tell me more..."
     };
-
+    // random by size of give_up_response array
     return give_up_response[rand() % (sizeof(give_up_response) / sizeof(char *))];
 }
 
@@ -467,19 +489,20 @@ char *give_up(void) {
 // 4.reflecting
 // 5.give up
 char *select_response(char *input_text, response canned, response conversation, multi_response keyword) {
-
+    // input_text contains (+ - / *)
+    // we will go to doCalculate
     if (strstr(input_text, "+") != NULL || strstr(input_text, "-") != NULL || strchr(input_text, '/') != NULL ||
         strstr(input_text, "*") != NULL) {
         return doCalculate(input_text);
     }
 
+
+    // check is  date time question
     char *time_response = isDateTimeQuestion(input_text);
     if (time_response != NULL) {
         return time_response;
     }
-    char *selected_response = NULL;
-
-    selected_response = canned_response(input_text, canned, conversation);
+    char *selected_response = canned_response(input_text, canned, conversation);
     if (selected_response == NULL) {
         selected_response = yes_no_response(input_text);
         if (selected_response == NULL) {
