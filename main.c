@@ -29,24 +29,7 @@ typedef struct {
     int size;
 } multi_response;
 
-//                        _oo0oo_
-//                       o8888888o
-//                       88" . "88
-//                       (| -_- |)
-//                       0\  =  /0
-//                     ___/`---'\___
-//                   .' \|     |// '.
-//                  / \|||  :  |||// \
-//                 / _||||| -:- |||||- \
-//                |   | \\  -  /// |   |
-//                | \_|  ''\---/''  |_/ |
-//                \  .-\__  '-'  ___/-. /
-//              ___'. .'  /--.--\  `. .'___
-//           ."" '<  `.___\_<|>_/___.' >' "".
-//          | | :  `- \`.;`\ _ /`;.`/ - ` : | |
-//          \  \ `_.   \_ __\ /__ _/   .-` /  /
-//      =====`-.____`.___ \_____/___.-`___.-'=====
-//                        `=---='
+
 
 // function prototypes
 response load_canned_questions_responses(void);
@@ -172,11 +155,11 @@ response load_conversations_responses(void) {
 
 multi_response load_keywords_responses(void) {
     FILE *fp;
-    char buffer[BUFFER_LENGTH];
+    char buffer[1024];
     multi_response res;
     res.size = 0;
     fp = fopen(KEYWORD_FILE, "rw");
-    for (int i = 0; fgets(buffer, BUFFER_LENGTH, fp); i++) {
+    for (int i = 0; fgets(buffer, 1024, fp); i++) {
         buffer[strcspn(buffer, "\n")] = 0;
         char *token = strtok(buffer, "\t");
         if (token == NULL) {
