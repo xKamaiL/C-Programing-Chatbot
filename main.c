@@ -155,53 +155,82 @@ response load_conversations_responses(void) {
 
 multi_response load_keywords_responses(void) {
     FILE *fp;
-    char buffer[1024];
-    multi_response res;
-    res.size = 0;
-    fp = fopen(KEYWORD_FILE, "rw");
-    for (int i = 0; fgets(buffer, 1024, fp); i++) {
+    // สร้าง string buffer * 5 เท่า
+    char buffer[BUFFER_LENGTH * 5] ;
+    // multi_response initial size to zero
+    multi_response res = {.size = 0};
+    // open file with read mode
+    fp = fopen(KEYWORD_FILE, "r");
+
+    // read file line by line until EOF
+    for (int i = 0; fgets(buffer, BUFFER_LENGTH * 5, fp); i++) {
+        // find length of string expect \n
+        // remove \n out
         buffer[strcspn(buffer, "\n")] = 0;
+
+        // split text by tab
         char *token = strtok(buffer, "\t");
+        // prevent no first column of text
         if (token == NULL) {
             printf("wrong format of tsv");
             break;
         }
 
+        // allocate question string
         res.question[i] = (char *) malloc(strlen(token));
+        // copy question string (token) into res.question
         strcpy(res.question[i], token);
+        // increase size
         res.size++;
+
+        // split a first response string
         token = strtok(NULL, "\t");
+        // prevent no response string ( 2 column )
         if (token == NULL) {
             printf("wrong format of tsv\n");
             break;
         }
 
-
+        // split a response by limit at 5 response
         int j = 0;
-        while (token != NULL) {
+        while (token != NULL && j < 5) {
+            // re allocate memory to increase capacity of response array
             res.response[i] = realloc(res.response[i], (j + 1) * sizeof(char *));
+
+            // allocate response number j by length of token
             res.response[i][j] = malloc((strlen(token)) * sizeof(char));
+            // copy token ( response number j )
             strcpy(res.response[i][j], token);
+            // find the next response
             token = strtok(NULL, "\t");
+            // increase counter
             j++;
         }
+        // set response_count into j + 1
         res.response_count = j + 1;
 
     }
+    // logging a res.size
     printf("[INFO]: load_keywords_responses.size = %d", res.size);
     return res;
 
 }
 
 char *canned_response(char *question, response canned, response conversation) {
+    // loop all canned responses
     for (int i = 0; i < canned.size; i++) {
+        // compare question with canned question
         if (strcmp(question, canned.question[i]) == 0) {
+            // response back to user
             return canned.response[i];
         }
     }
 
+    // loop all conversation responses
     for (int i = 0; i < conversation.size; i++) {
+        // compare question with conversation question
         if (strcmp(question, conversation.question[i]) == 0) {
+            // response back to user
             return conversation.response[i];
         }
     }
@@ -211,9 +240,13 @@ char *canned_response(char *question, response canned, response conversation) {
 
 char *findKeyword(char *, multi_response);
 
+// findKeyword receive a word string
+// and return with random response from multi_response
 char *findKeyword(char *word, multi_response data) {
     // set seed
     srand(time(NULL));
+
+
     // loop all keywords
     for (int i = 0; i < data.size; i++) {
         // compare word vs question
@@ -234,12 +267,12 @@ char *keyword_response(char *question, multi_response keyword) {
 
 
 
-    // split a question into word
-
+    // split a question into word by space
     char *token = strtok(tempstr, " ");
     while (token != NULL) {
         // find a keyword
         char *r = findKeyword(token, keyword);
+        // found keyword response
         if (r != NULL) {
             return r;
         }
@@ -265,10 +298,10 @@ char *yes_no_response(char *input_text) {
 
     size_t len = sizeof(verbs) / sizeof(verbs[0]);
 
-    // loop check
+    // loop check all verbs array
     for (int i = 0; i < len; i++) {
-        // check string is start with verb[i] or not
-        // and string end with ?
+        // check string is start with verb[i]
+        // and string end with ? or not
         if (hasPrefix(verbs[i], input_text) && hasSuffix(input_text, "?")) {
             // random yes no
             int r = rand() % (sizeof(yes_or_no) / sizeof(char *));
