@@ -102,7 +102,7 @@ response load_canned_questions_responses(void) {
 
     for (int i = 0; fgets(buffer, BUFFER_LENGTH, fp); i++) {
         buffer[strcspn(buffer, "\n")] = 0;  // trim newline
-        buffer[strcspn(buffer, "\r")] = 0;
+        buffer[strcspn(buffer, "\r")] = 0; // for linux
         res.question[i] = (char *) malloc(strlen(buffer));
         strcpy(res.question[i], buffer);
         res.size++;
@@ -112,8 +112,8 @@ response load_canned_questions_responses(void) {
     fp = fopen(CANNED_RESPONSE_FILE, "r");
 
     for (int i = 0; fgets(buffer, BUFFER_LENGTH, fp); i++) {
-        buffer[strcspn(buffer, "\n")] = 0;
-        buffer[strcspn(buffer, "\r")] = 0;
+        buffer[strcspn(buffer, "\n")] = 0; // trim newline
+        buffer[strcspn(buffer, "\r")] = 0; // for linux
         res.response[i] = (char *) malloc(strlen(buffer));
         strcpy(res.response[i], buffer);
     }
@@ -133,8 +133,8 @@ response load_conversations_responses(void) {
 
     for (int i = 0; fgets(buffer, BUFFER_LENGTH, fp); i++) {
 
-        buffer[strcspn(buffer, "\n")] = 0;
-        buffer[strcspn(buffer, "\r")] = 0;
+        buffer[strcspn(buffer, "\n")] = 0; // trim newline
+        buffer[strcspn(buffer, "\r")] = 0; // trim newline
 
         if ((i) % 2 == 0) {
             output.question[output.size] = (char *) malloc(strlen(buffer));
